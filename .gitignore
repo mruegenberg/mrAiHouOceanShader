@@ -1,0 +1,6 @@
+*.o
+*.exp
+*.lib
+*~
+deps/Arnold*
+/src/.emacs.desktop*

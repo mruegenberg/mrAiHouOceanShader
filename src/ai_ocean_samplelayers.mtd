@@ -1,0 +1,46 @@
+[node ai_ocean_samplelayers]
+      desc STRING "Arnold Ocean Sample Layers"
+      houdini.icon STRING "VOP_ocean_samplelayers"
+      houdini.category STRING "mr"
+      houdini.help_url STRING ""
+      houdini.order STRING "filename maskname time samplepos aablur depthfalloff falloff downsample"
+
+      [attr filename]
+            houdini.label STRING "Geometry File"
+	    desc STRING "Ocean Spectrum File"
+            linkable BOOL FALSE
+	    houdini.type STRING "file:*.bgeo"
+	        
+      [attr maskname]
+            houdini.label STRING "Mask Geometry File"
+	    desc STRING "Ocean Spectrum Mask File"
+            linkable BOOL FALSE
+	    houdini.type STRING "file:*.bgeo"
+	        
+      [attr time]
+            houdini.label STRING "Time"
+            linkable BOOL TRUE
+
+      [attr samplepos]
+            houdini.label STRING "Sample Position"
+            linkable BOOL TRUE
+
+      [attr aablur]
+            houdini.label STRING "Anti-Alias Blur"
+            linkable BOOL FALSE
+
+      [attr depthfalloff]
+            houdini.label STRING "Depth Falloff"
+            linkable BOOL FALSE
+                        houdini.type STRING "menu:single"
+            houdini.menu STRING "none;None;exponential;Exponential;exponentialbyfreq;Exponential by Frequency"
+
+      [attr falloff]
+            houdini.label STRING "Falloff Scale"
+            linkable BOOL FALSE
+            
+      [attr downsample]
+            houdini.label STRING "Downsample"
+            linkable BOOL FALSE
+
+	

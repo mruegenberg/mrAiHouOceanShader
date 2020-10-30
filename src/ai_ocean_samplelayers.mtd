@@ -3,7 +3,7 @@
       houdini.icon STRING "VOP_ocean_samplelayers"
       houdini.category STRING "mr"
       houdini.help_url STRING ""
-      houdini.order STRING "filename maskname time samplepos aablur depthfalloff falloff downsample"
+      houdini.order STRING "filename maskname P time samplepos aablur depthfalloff falloff downsample"
 
       [attr filename]
             houdini.label STRING "Geometry File"
@@ -16,13 +16,14 @@
 	    desc STRING "Ocean Spectrum Mask File"
             linkable BOOL FALSE
 	    houdini.type STRING "file:*.bgeo"
+
+      [attr restname]
+            houdini.label STRING "Rest Attribute"
+	    desc STRING "Attribute to use a rest position. Use for already partially displaced oceans."
+            linkable BOOL FALSE
 	        
       [attr time]
             houdini.label STRING "Time"
-            linkable BOOL TRUE
-
-      [attr samplepos]
-            houdini.label STRING "Sample Position"
             linkable BOOL TRUE
 
       [attr aablur]

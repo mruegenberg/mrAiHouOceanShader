@@ -12,6 +12,7 @@
 enum AiHOceanParms {    
     p_filename,
     p_maskname,
+    p_restname,
     p_time,
     p_aablur,
     p_depthfalloff,
@@ -33,6 +34,7 @@ node_parameters
 {        
     AiParameterStr("filename", "");
     AiParameterStr("maskname", "");
+    AiParameterStr("restname", "rest");
     AiParameterFlt("time", 0);
     AiParameterFlt("aablur", 0.5);
     AiParameterEnum("depthfalloff", 0, depthfalloffmodenames);
@@ -185,6 +187,7 @@ shader_evaluate
 
     const char *spectrumfilename = AiShaderEvalParamStr(p_filename);
     const char *spectrummask = AiShaderEvalParamStr(p_maskname);
+    const char *restname = AiShaderEvalParamStr(p_restname);
     float time = AiShaderEvalParamFlt(p_time);
     float aablur = AiShaderEvalParamFlt(p_aablur);
     int depthfalloff = AiShaderEvalParamEnum(p_depthfalloff);
@@ -200,6 +203,9 @@ shader_evaluate
         *s_val, *t_val,
         *filename_val, *maskname_val,
         *time_val, *aablur_val, *depthfalloff_val, *falloff_val, *downsample_val;
+    bool useRest = true;
+    AtVector restP = sg->P;
+
     {
         P_val    = ctx->findInput("P",    CVEX_TYPE_VECTOR3);
         Eye_val  = ctx->findInput("Eye",  CVEX_TYPE_VECTOR3);
@@ -221,7 +227,14 @@ shader_evaluate
         
         if (P_val)
         {
-            vecBuffers[0].assign(&(sg->P.x));
+            static const AtString rest(restname);
+            if(useRest && AiUDataGetVec(rest, restP)) {
+                vecBuffers[0].assign(&(restP.x));
+            }
+            else {
+                useRest = false; // rest not found, so don't use it downstream
+                vecBuffers[0].assign(&(sg->P.x));
+            }
             P_val->setTypedData(vecBuffers + 0, 1);
         }
         if (Eye_val)
@@ -324,9 +337,17 @@ shader_evaluate
 
     ctx->run(1, false);
 
-    sg->out.RGBA().r = out_displacement[0].x();
-    sg->out.RGBA().g = out_displacement[0].y();
-    sg->out.RGBA().b = out_displacement[0].z();
+    if(useRest) {
+        AtVector preDisp = sg->P - restP;
+        sg->out.RGBA().r = out_displacement[0].x() - preDisp.x;
+        sg->out.RGBA().g = out_displacement[0].y() - preDisp.y;
+        sg->out.RGBA().b = out_displacement[0].z() - preDisp.z;
+    }
+    else {
+        sg->out.RGBA().r = out_displacement[0].x();
+        sg->out.RGBA().g = out_displacement[0].y();
+        sg->out.RGBA().b = out_displacement[0].z();
+    }
     sg->out.RGBA().a = out_cusp[0];
 }
 

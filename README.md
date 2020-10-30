@@ -35,3 +35,5 @@ TODO
 ## Future Plans
 
 - expose Sample Position input. If connected, use that; otherwise, just pass P from the shading group context
+
+- possibly provide better support for cusp by creating a separate shading node which outputs the value (and gets it from the main shader via [message passing](https://docs.arnoldrenderer.com/api/arnold-6.0.3.1/group__ai__shader__message.html#details)

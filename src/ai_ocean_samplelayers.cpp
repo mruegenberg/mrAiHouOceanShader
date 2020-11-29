@@ -14,7 +14,6 @@ enum AiHOceanParms {
     p_maskname,
     p_restname,
     p_time,
-    p_aablur,
     p_depthfalloff,
     p_falloff,
     p_downsample,
@@ -36,7 +35,6 @@ node_parameters
     AiParameterStr("maskname", "");
     AiParameterStr("restname", "rest");
     AiParameterFlt("time", 0);
-    AiParameterFlt("aablur", 0.5);
     AiParameterEnum("depthfalloff", 0, depthfalloffmodenames);
     AiParameterFlt("falloff", 1);
     AiParameterInt("downsample", 0);
@@ -130,9 +128,9 @@ shader_evaluate
         // \"/home/marcel/_work/Create/Houdini-experiments/microexperiments_2019/hip/fx/geo/oceanspectrum_arnold_v004.spectra.bgeo.sc\", \"\"
         const char *vexCode =
             "#include <ocean.h>\n"
-            "cvex cvex1(const string filename=''; const string maskname=''; const vector P={0,0,0}; const float time=0; const int depthfalloff=0; const float falloff=1; const float aablur=1; const int downsample=0;\n"
+            "cvex cvex1(const string filename=''; const string maskname=''; const vector P={0,0,0}; const float time=0; const int depthfalloff=0; const float falloff=1; const int downsample=0;\n"
             "export vector displacement={0,0,0}; export vector velocity={0,0,0}; export float cusp=0; export vector cuspdir={0,0,0}) {\n"
-            "        oceanSampleLayers(filename, maskname, time, P, aablur, depthfalloff, falloff, downsample, displacement, velocity, cusp, cuspdir);\n"
+            "        oceanSampleLayers(filename, maskname, time, P, 0, depthfalloff, falloff, downsample, displacement, velocity, cusp, cuspdir);\n"
             "}\n\n";
         
         std::ofstream out(fileName);
@@ -164,10 +162,11 @@ shader_evaluate
         ctx->addInput("time", CVEX_TYPE_FLOAT, false); // false = not varying = same for all pts
         ctx->addInput("filename", CVEX_TYPE_STRING, false);
         ctx->addInput("maskname", CVEX_TYPE_STRING, false);
-        ctx->addInput("aablur", CVEX_TYPE_FLOAT, false);
+        // ctx->addInput("aablur", CVEX_TYPE_FLOAT, false); // doesn't really have an effect in Arnold.
         ctx->addInput("depthfalloff", CVEX_TYPE_INTEGER, false);
         ctx->addInput("falloff", CVEX_TYPE_FLOAT, false);
-        ctx->addInput("downsample", CVEX_TYPE_INTEGER, false);        
+        ctx->addInput("downsample", CVEX_TYPE_INTEGER, false);
+
         
         if(! ctx->load(argc, argv)) {
             const char *err = ctx->getLastError();
@@ -189,7 +188,7 @@ shader_evaluate
     const char *spectrummask = AiShaderEvalParamStr(p_maskname);
     const char *restname = AiShaderEvalParamStr(p_restname);
     float time = AiShaderEvalParamFlt(p_time);
-    float aablur = AiShaderEvalParamFlt(p_aablur);
+    // float aablur = AiShaderEvalParamFlt(p_aablur);
     int depthfalloff = AiShaderEvalParamEnum(p_depthfalloff);
     float falloff = AiShaderEvalParamFlt(p_falloff);
     int downsample = AiShaderEvalParamInt(p_downsample);
@@ -202,7 +201,8 @@ shader_evaluate
         *N_val, *Ng_val,
         *s_val, *t_val,
         *filename_val, *maskname_val,
-        *time_val, *aablur_val, *depthfalloff_val, *falloff_val, *downsample_val;
+        *time_val, *depthfalloff_val, *falloff_val, *downsample_val;
+    // CVEX_Value *aablur_val;
     bool useRest = true;
     AtVector restP = sg->P;
 
@@ -220,7 +220,7 @@ shader_evaluate
         filename_val = ctx->findInput("filename", CVEX_TYPE_STRING);
         maskname_val = ctx->findInput("maskname", CVEX_TYPE_STRING);       
         time_val = ctx->findInput("time", CVEX_TYPE_FLOAT);
-        aablur_val = ctx->findInput("aablur", CVEX_TYPE_FLOAT);
+        // aablur_val = ctx->findInput("aablur", CVEX_TYPE_FLOAT);
         depthfalloff_val = ctx->findInput("depthfalloff", CVEX_TYPE_INTEGER);
         falloff_val = ctx->findInput("falloff", CVEX_TYPE_FLOAT);
         downsample_val = ctx->findInput("downsample", CVEX_TYPE_INTEGER);
@@ -293,16 +293,13 @@ shader_evaluate
             fltBuffers[2] = time;
             time_val->setTypedData(fltBuffers + 2, 1);
         }
+        /*
         if(aablur_val)
         {
             fltBuffers[3] = aablur;
             aablur_val->setTypedData(fltBuffers + 3, 1);
         }
-        if(aablur_val)
-        {
-            fltBuffers[3] = aablur;
-            aablur_val->setTypedData(fltBuffers + 3, 1);
-        }
+        */
         if(depthfalloff_val)
         {
             intBuffers[0] = depthfalloff;

@@ -26,14 +26,10 @@
             houdini.label STRING "Time"
             linkable BOOL TRUE
 
-      [attr aablur]
-            houdini.label STRING "Anti-Alias Blur"
-            linkable BOOL FALSE
-
       [attr depthfalloff]
             houdini.label STRING "Depth Falloff"
             linkable BOOL FALSE
-                        houdini.type STRING "menu:single"
+            houdini.type STRING "menu:single"
             houdini.menu STRING "none;None;exponential;Exponential;exponentialbyfreq;Exponential by Frequency"
 
       [attr falloff]

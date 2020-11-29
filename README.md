@@ -3,7 +3,8 @@
 This project derives from [mrAiVexShader](https://github.com/mruegenberg/mrAiVexShader) to render Houdini Ocean spectra directly in Arnold, without exporting displacement maps or similar.
 
 ## Prerequisites
-An installation of Houdini.
+- An installation of Houdini
+- The right compiler version matching your Houdini. You can find this in `Help > About Houdini > Show Details > Build platform`.
 
 ## Compilation/Installation
 1. Get the Arnold SDK for your system and Arnold version from [SolidAngle](https://www.solidangle.com/arnold/download/) and put it in `deps`.
@@ -12,6 +13,25 @@ An installation of Houdini.
 4. Copy the resulting `vexrgb.dll/.so/.dylib` and `vexrgb.mtd` file for to your `ARNOLD_PLUGIN_PATH`.
 5. Copy `ai_ocean_samplelayers.dll/.so/.dylib` to the `dso` directory in your Arnold installation (or wherever your Arnold looks for procedurals). It's easiest to put it somewhere in your `ARNOLD_PLUGIN_PATH` and add `[ARNOLD_PLUGIN_PATH]` to the *Procedural Path* in the System section of your Arnold settings.
 6. Start Houdini with Arnold and have some fun. (It's theoretically even possible to use this without Houdini, e.g in Maya or C4D, but you will probably use that to author the ocean spectra anyway.)
+
+### On getting the right compiler to work
+Lets say we're using Houdini 18.0.*, which uses GCC 6.3. 
+https://vfxplatform.com/#footnote-gcc6
+
+Vagrant
+sudo pacman -S vagrant
+# sudo pacman -S qemu libvirt virt-manager # theoretically, using libvirt/qemu/kvm might be faster, but things like shared folder are much more complicated
+# sudo systemctl enable libvirtd.service
+# `vagrant plugin install vagrant-libvirt`
+`vagrant box add centos/7` # choose virtualbox (option 3)
+vagrant plugin install vagrant-vbguest # makes shared folders work
+`vagrant up --provider=virtualbox
+
+Docker
+
+-----------
+
+Not sure how to get the binary out of Virtualbox...`
 
 # Usage
 
@@ -30,7 +50,8 @@ TODO
 
 ## Limitations
 - At the moment, the Arnold render still starts significantly slower than the Houdini version, probably due to differences in renderer architecture/displacement performance.
-- No possibility to export `velocity` or `cuspdir`. This is due to Arnold shaders always having only one output. 
+- No possibility to export `velocity` or `cuspdir`. This is due to Arnold shaders always having only one output.
+- the _Anti-Alias Blur_ parameter is not supported. To achieve a similar result, just reduce the maximum subdivision iterations. 
 
 ## Future Plans
 

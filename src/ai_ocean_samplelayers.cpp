@@ -43,7 +43,7 @@ node_parameters
 struct ShaderData {
     AtCritSec critSec;
     
-    char codeFilename[100]; // temporary file for compiled VEX code
+    char codeFilename[200]; // temporary file for compiled VEX code
     CVEX_Context* ctxs[AI_MAX_THREADS]; // at most one context per thread
 };
 
@@ -121,7 +121,7 @@ shader_evaluate
         strcpy(data->codeFilename, "/tmp/oceanVexcodeXXXXXX");
         mkstemp(data->codeFilename);
         // std::tmpnam(data->codeFilename); // TODO: add pragma to silence the unsafe warning?
-        strcat(data->codeFilename, ".vfl");
+        strncat(data->codeFilename, ".vfl", 150);
         fileName = data->codeFilename;
         AiMsgWarning("fn: %s", fileName);
 
@@ -144,8 +144,8 @@ shader_evaluate
         // fileName = "/home/marcel/_work/dev/mrAiVexShader/samples/simple.vfl";
         
         UT_String script(fileName); // copy fileName to a UT_String (internal Houdini string)
-        char *argv[4096];
-        int argc = script.parse(argv, 4096); // converts so that VEX context can load it
+        char *argv[1024];
+        int argc = script.parse(argv, 1024); // converts so that VEX context can load it
 
         // default inputs translated from default Arnold names to default Hou names
         ctx->addInput("P",    CVEX_TYPE_VECTOR3, true); // P
@@ -175,9 +175,9 @@ shader_evaluate
         }
     }
 
-    UT_Vector3 vecBuffers[7]; // for simplicity, one vec buffer for all
-    fpreal32 fltBuffers[5];
-    int32 intBuffers[2];
+    UT_Vector3 vecBuffers[7] = {UT_Vector3(0,0,0)}; // for simplicity, one vec buffer for all
+    fpreal32 fltBuffers[5] = {0,0,0,0,0};
+    int32 intBuffers[2] = {0};
     CVEX_StringArray filenameBuffer;
     CVEX_StringArray masknameBuffer;
     // TODO: maybe don't reallocate these in each call? CVex_Value probably just keeps a pointer,
@@ -319,9 +319,9 @@ shader_evaluate
     
     CVEX_Value *out_displacement_val; // CVEX_Value *out_velocity_val;
     CVEX_Value *out_cusp_val; // CVEX_Value *out_cuspdir_val;
-    UT_Vector3 out_displacement[1];
+    UT_Vector3 out_displacement[1] = {UT_Vector3(0,0,0)};
     // UT_Vector3 out_velocity[1];
-    fpreal32 out_cusp[1];
+    fpreal32 out_cusp[1] = {0};
     // UT_Vector3 out_cuspdir[1];
     out_displacement_val = ctx->findOutput("displacement", CVEX_TYPE_VECTOR3);
     // out_velocity_val = ctx->findOutput("velocity", CVEX_TYPE_VECTOR3);

@@ -45,6 +45,13 @@ struct ShaderData {
     
     char codeFilename[200]; // temporary file for compiled VEX code
     CVEX_Context* ctxs[AI_MAX_THREADS]; // at most one context per thread
+
+    // uniform data - needs to be persistent
+    fpreal32 fltBuffersU[AI_MAX_THREADS][2];
+    int32 intBuffersU[AI_MAX_THREADS][2];
+    CVEX_StringArray filenameBuffer[AI_MAX_THREADS];
+    CVEX_StringArray masknameBuffer[AI_MAX_THREADS];
+    
 };
 
 node_initialize
@@ -56,6 +63,11 @@ node_initialize
     for (int i=0; i<AI_MAX_THREADS; ++i)
     {
         data->ctxs[i] = 0;
+
+        memset(data->fltBuffersU[i], 0, 2*sizeof(fpreal32));
+        memset(data->intBuffersU[i], 0, 2*sizeof(int32));
+        data->filenameBuffer[i] = CVEX_StringArray();
+        data->masknameBuffer[i] = CVEX_StringArray();
     }
     AiCritSecInit(&(data->critSec));
     AiNodeSetLocalData(node, data);
@@ -168,6 +180,59 @@ shader_evaluate
             AiMsgWarning("loading the CVEX context failed: %s", err);
             return;
         }
+
+
+
+        /////////////// Add uniform parms and set their values
+        const char *spectrumfilename = AiShaderEvalParamStr(p_filename);
+        const char *spectrummask = AiShaderEvalParamStr(p_maskname);
+        float time = AiShaderEvalParamFlt(p_time);
+        int depthfalloff = AiShaderEvalParamEnum(p_depthfalloff);
+        float falloff = AiShaderEvalParamFlt(p_falloff);
+        int downsample = AiShaderEvalParamInt(p_downsample);
+
+        CVEX_Value
+            *filename_val, *maskname_val,
+            *time_val, *depthfalloff_val, *falloff_val, *downsample_val;
+        {
+            filename_val = ctx->findInput("filename", CVEX_TYPE_STRING);
+            maskname_val = ctx->findInput("maskname", CVEX_TYPE_STRING);       
+            time_val = ctx->findInput("time", CVEX_TYPE_FLOAT);
+            depthfalloff_val = ctx->findInput("depthfalloff", CVEX_TYPE_INTEGER);
+            falloff_val = ctx->findInput("falloff", CVEX_TYPE_FLOAT);
+            downsample_val = ctx->findInput("downsample", CVEX_TYPE_INTEGER);
+
+            if (filename_val)
+            {
+                data->filenameBuffer[sg->tid].append(spectrumfilename);
+                filename_val->setTypedData(data->filenameBuffer[sg->tid]);
+            }
+            if(maskname_val) {
+                data->masknameBuffer[sg->tid].append(spectrummask);
+                maskname_val->setTypedData(data->masknameBuffer[sg->tid]);
+            }           
+            if (time_val)
+            {
+                data->fltBuffersU[sg->tid][0] = time;
+                time_val->setTypedData(data->fltBuffersU[sg->tid] + 0, 1);
+            }
+            if(depthfalloff_val)
+            {
+                data->intBuffersU[sg->tid][0] = depthfalloff;
+                depthfalloff_val->setTypedData(data->intBuffersU[sg->tid] + 0, 1);
+            }
+            if(falloff_val)
+            {
+                data->fltBuffersU[sg->tid][1] = falloff;
+                falloff_val->setTypedData(data->fltBuffersU[sg->tid] + 1, 1);
+            }
+            if(downsample_val)
+            {
+                data->intBuffersU[1][sg->tid] = downsample;
+                downsample_val->setTypedData(data->intBuffersU[sg->tid] + 1, 1);
+            }
+        }
+
     }
 
     // AiMsgWarning("after context %s", AiGetCompileOptions());
@@ -253,60 +318,6 @@ shader_evaluate
         {
             fltBuffers[1] = sg->v;
             t_val->setTypedData(fltBuffers + 1, 1);
-        }
-    }
-
-    fpreal32 fltBuffersU[2] = {0,0};
-    int32 intBuffersU[2] = {0};
-    CVEX_StringArray filenameBuffer;
-    CVEX_StringArray masknameBuffer;
-
-    const char *spectrumfilename = AiShaderEvalParamStr(p_filename);
-    const char *spectrummask = AiShaderEvalParamStr(p_maskname);
-    float time = AiShaderEvalParamFlt(p_time);
-    int depthfalloff = AiShaderEvalParamEnum(p_depthfalloff);
-    float falloff = AiShaderEvalParamFlt(p_falloff);
-    int downsample = AiShaderEvalParamInt(p_downsample);
-
-    CVEX_Value
-        *filename_val, *maskname_val,
-        *time_val, *depthfalloff_val, *falloff_val, *downsample_val;
-    {
-        filename_val = ctx->findInput("filename", CVEX_TYPE_STRING);
-        maskname_val = ctx->findInput("maskname", CVEX_TYPE_STRING);       
-        time_val = ctx->findInput("time", CVEX_TYPE_FLOAT);
-        depthfalloff_val = ctx->findInput("depthfalloff", CVEX_TYPE_INTEGER);
-        falloff_val = ctx->findInput("falloff", CVEX_TYPE_FLOAT);
-        downsample_val = ctx->findInput("downsample", CVEX_TYPE_INTEGER);
-
-        if (filename_val)
-        {
-            filenameBuffer.append(spectrumfilename);
-            filename_val->setTypedData(filenameBuffer);
-        }
-        if(maskname_val) {
-            masknameBuffer.append(spectrummask);
-            maskname_val->setTypedData(masknameBuffer);
-        }           
-        if (time_val)
-        {
-            fltBuffersU[0] = time;
-            time_val->setTypedData(fltBuffersU + 0, 1);
-        }
-        if(depthfalloff_val)
-        {
-            intBuffersU[0] = depthfalloff;
-            depthfalloff_val->setTypedData(intBuffersU + 0, 1);
-        }
-        if(falloff_val)
-        {
-            fltBuffersU[1] = falloff;
-            falloff_val->setTypedData(fltBuffersU + 1, 1);
-        }
-        if(downsample_val)
-        {
-            intBuffersU[1] = downsample;
-            downsample_val->setTypedData(intBuffersU + 1, 1);
         }
     }
     

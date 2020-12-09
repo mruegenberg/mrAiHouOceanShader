@@ -4,3 +4,7 @@
 *~
 deps/Arnold*
 /src/.emacs.desktop*
+*.kate-swp
+*flycheck_*
+.emacs.desktop
+/.emacs.desktop.lock

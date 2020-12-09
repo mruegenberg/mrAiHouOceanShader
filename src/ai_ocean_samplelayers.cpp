@@ -174,21 +174,10 @@ shader_evaluate
 
 
     UT_Vector3 vecBuffers[7] = {UT_Vector3(0,0,0)}; // for simplicity, one vec buffer for all
-    fpreal32 fltBuffers[5] = {0,0,0,0,0};
-    int32 intBuffers[2] = {0};
-    CVEX_StringArray filenameBuffer;
-    CVEX_StringArray masknameBuffer;
+    fpreal32 fltBuffers[2] = {0,0};
     // TODO: maybe don't reallocate these in each call? CVex_Value probably just keeps a pointer,
     //       so we'd have to do the setTypedData call only once, saving both on [stack] alloc and unneeded
     //       assigns.
-
-    const char *spectrumfilename = AiShaderEvalParamStr(p_filename);
-    const char *spectrummask = AiShaderEvalParamStr(p_maskname);
-    const char *restname = AiShaderEvalParamStr(p_restname);
-    float time = AiShaderEvalParamFlt(p_time);
-    int depthfalloff = AiShaderEvalParamEnum(p_depthfalloff);
-    float falloff = AiShaderEvalParamFlt(p_falloff);
-    int downsample = AiShaderEvalParamInt(p_downsample);
 
     // Shading Group params
     CVEX_Value
@@ -196,9 +185,7 @@ shader_evaluate
         *Eye_val, *I_val,
         *dPds_val, *dPdt_val,
         *N_val, *Ng_val,
-        *s_val, *t_val,
-        *filename_val, *maskname_val,
-        *time_val, *depthfalloff_val, *falloff_val, *downsample_val;
+        *s_val, *t_val;
     bool useRest = true;
     AtVector restP = sg->P;
 
@@ -212,16 +199,10 @@ shader_evaluate
         Ng_val   = ctx->findInput("Ng",   CVEX_TYPE_VECTOR3);
         s_val    = ctx->findInput("s",    CVEX_TYPE_FLOAT);
         t_val    = ctx->findInput("t",    CVEX_TYPE_FLOAT);
-
-        filename_val = ctx->findInput("filename", CVEX_TYPE_STRING);
-        maskname_val = ctx->findInput("maskname", CVEX_TYPE_STRING);       
-        time_val = ctx->findInput("time", CVEX_TYPE_FLOAT);
-        depthfalloff_val = ctx->findInput("depthfalloff", CVEX_TYPE_INTEGER);
-        falloff_val = ctx->findInput("falloff", CVEX_TYPE_FLOAT);
-        downsample_val = ctx->findInput("downsample", CVEX_TYPE_INTEGER);
         
         if (P_val)
         {
+            const char *restname = AiShaderEvalParamStr(p_restname);
             static const AtString rest(restname);
             if(useRest && AiUDataGetVec(rest, restP)) {
                 vecBuffers[0].assign(&(restP.x));
@@ -273,6 +254,30 @@ shader_evaluate
             fltBuffers[1] = sg->v;
             t_val->setTypedData(fltBuffers + 1, 1);
         }
+    }
+
+    fpreal32 fltBuffersU[2] = {0,0};
+    int32 intBuffersU[2] = {0};
+    CVEX_StringArray filenameBuffer;
+    CVEX_StringArray masknameBuffer;
+
+    const char *spectrumfilename = AiShaderEvalParamStr(p_filename);
+    const char *spectrummask = AiShaderEvalParamStr(p_maskname);
+    float time = AiShaderEvalParamFlt(p_time);
+    int depthfalloff = AiShaderEvalParamEnum(p_depthfalloff);
+    float falloff = AiShaderEvalParamFlt(p_falloff);
+    int downsample = AiShaderEvalParamInt(p_downsample);
+
+    CVEX_Value
+        *filename_val, *maskname_val,
+        *time_val, *depthfalloff_val, *falloff_val, *downsample_val;
+    {
+        filename_val = ctx->findInput("filename", CVEX_TYPE_STRING);
+        maskname_val = ctx->findInput("maskname", CVEX_TYPE_STRING);       
+        time_val = ctx->findInput("time", CVEX_TYPE_FLOAT);
+        depthfalloff_val = ctx->findInput("depthfalloff", CVEX_TYPE_INTEGER);
+        falloff_val = ctx->findInput("falloff", CVEX_TYPE_FLOAT);
+        downsample_val = ctx->findInput("downsample", CVEX_TYPE_INTEGER);
 
         if (filename_val)
         {
@@ -285,23 +290,23 @@ shader_evaluate
         }           
         if (time_val)
         {
-            fltBuffers[2] = time;
-            time_val->setTypedData(fltBuffers + 2, 1);
+            fltBuffersU[0] = time;
+            time_val->setTypedData(fltBuffersU + 0, 1);
         }
         if(depthfalloff_val)
         {
-            intBuffers[0] = depthfalloff;
-            depthfalloff_val->setTypedData(intBuffers + 0, 1);
+            intBuffersU[0] = depthfalloff;
+            depthfalloff_val->setTypedData(intBuffersU + 0, 1);
         }
         if(falloff_val)
         {
-            fltBuffers[4] = falloff;
-            falloff_val->setTypedData(fltBuffers + 4, 1);
+            fltBuffersU[1] = falloff;
+            falloff_val->setTypedData(fltBuffersU + 1, 1);
         }
         if(downsample_val)
         {
-            intBuffers[1] = downsample;
-            downsample_val->setTypedData(intBuffers + 1, 1);
+            intBuffersU[1] = downsample;
+            downsample_val->setTypedData(intBuffersU + 1, 1);
         }
     }
     

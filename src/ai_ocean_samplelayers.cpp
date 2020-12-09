@@ -106,7 +106,7 @@ shader_evaluate
 
     ShaderData* data = (ShaderData*) AiNodeGetLocalData(node);
 
-    // context
+    // context. only initialized once per thread
     CVEX_Context *ctx = data->ctxs[sg->tid];
     if (!ctx)
     {
@@ -123,9 +123,8 @@ shader_evaluate
         // std::tmpnam(data->codeFilename); // TODO: add pragma to silence the unsafe warning?
         strncat(data->codeFilename, ".vfl", 150);
         fileName = data->codeFilename;
-        AiMsgWarning("fn: %s", fileName);
+        AiMsgWarning("CVEX tmp filename: %s", fileName);
 
-        // \"/home/marcel/_work/Create/Houdini-experiments/microexperiments_2019/hip/fx/geo/oceanspectrum_arnold_v004.spectra.bgeo.sc\", \"\"
         const char *vexCode =
             "#include <ocean.h>\n"
             "cvex cvex1(const string filename=''; const string maskname=''; const vector P={0,0,0}; const float time=0; const int depthfalloff=0; const float falloff=1; const int downsample=0;\n"
@@ -137,16 +136,13 @@ shader_evaluate
         out << vexCode;
         out.close();
 
-        AiCritSecLeave(&(data->critSec));
-
-        // fileName = "/home/marcel/_work/dev/mrAiHouOceanShader/src/ocean_tmp.vfl";
-
-        // fileName = "/home/marcel/_work/dev/mrAiVexShader/samples/simple.vfl";
-        
         UT_String script(fileName); // copy fileName to a UT_String (internal Houdini string)
         char *argv[1024];
         int argc = script.parse(argv, 1024); // converts so that VEX context can load it
 
+
+        AiCritSecLeave(&(data->critSec));
+        
         // default inputs translated from default Arnold names to default Hou names
         ctx->addInput("P",    CVEX_TYPE_VECTOR3, true); // P
         ctx->addInput("Eye",  CVEX_TYPE_VECTOR3, true); // Ro
@@ -174,6 +170,9 @@ shader_evaluate
             return;
         }
     }
+
+    // AiMsgWarning("after context %s", AiGetCompileOptions());
+
 
     UT_Vector3 vecBuffers[7] = {UT_Vector3(0,0,0)}; // for simplicity, one vec buffer for all
     fpreal32 fltBuffers[5] = {0,0,0,0,0};

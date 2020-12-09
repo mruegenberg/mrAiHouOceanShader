@@ -238,32 +238,19 @@ shader_evaluate
     // AiMsgWarning("after context %s", AiGetCompileOptions());
 
 
-    UT_Vector3 vecBuffers[7] = {UT_Vector3(0,0,0)}; // for simplicity, one vec buffer for all
-    fpreal32 fltBuffers[2] = {0,0};
-    // TODO: maybe don't reallocate these in each call? CVex_Value probably just keeps a pointer,
+    UT_Vector3 vecBuffers[1] = {UT_Vector3(0,0,0)}; // for simplicity, one vec buffer for all
+    // TODO: maybe don't reallocate this in each call? CVEX_Value probably just keeps a pointer,
     //       so we'd have to do the setTypedData call only once, saving both on [stack] alloc and unneeded
     //       assigns.
 
     // Shading Group params
     CVEX_Value
-        *P_val,
-        *Eye_val, *I_val,
-        *dPds_val, *dPdt_val,
-        *N_val, *Ng_val,
-        *s_val, *t_val;
+        *P_val;
     bool useRest = true;
     AtVector restP = sg->P;
 
     {
         P_val    = ctx->findInput("P",    CVEX_TYPE_VECTOR3);
-        Eye_val  = ctx->findInput("Eye",  CVEX_TYPE_VECTOR3);
-        I_val    = ctx->findInput("I",    CVEX_TYPE_VECTOR3);
-        dPds_val = ctx->findInput("dPds", CVEX_TYPE_VECTOR3);
-        dPdt_val = ctx->findInput("dPdt", CVEX_TYPE_VECTOR3);
-        N_val    = ctx->findInput("N",    CVEX_TYPE_VECTOR3);
-        Ng_val   = ctx->findInput("Ng",   CVEX_TYPE_VECTOR3);
-        s_val    = ctx->findInput("s",    CVEX_TYPE_FLOAT);
-        t_val    = ctx->findInput("t",    CVEX_TYPE_FLOAT);
         
         if (P_val)
         {
@@ -277,47 +264,6 @@ shader_evaluate
                 vecBuffers[0].assign(&(sg->P.x));
             }
             P_val->setTypedData(vecBuffers + 0, 1);
-        }
-        if (Eye_val)
-        {
-            vecBuffers[1].assign(&(sg->Ro.x));
-            Eye_val->setTypedData(vecBuffers + 1, 1);
-        }
-        if (I_val)
-        {
-            vecBuffers[2].assign(&(sg->Rd.x));
-            I_val->setTypedData(vecBuffers + 2, 1);
-        }
-        if (dPds_val)
-        {
-            vecBuffers[3].assign(&(sg->dPdu.x));
-            dPds_val->setTypedData(vecBuffers + 3, 1);
-        }
-        if (dPdt_val)
-        {
-            vecBuffers[4].assign(&(sg->dPdv.x));
-            dPdt_val->setTypedData(vecBuffers + 4, 1);
-        }
-        if (N_val)
-        {
-            vecBuffers[5].assign(&(sg->N.x));
-            N_val->setTypedData(vecBuffers + 5, 1);
-        }
-        if (Ng_val)
-        {
-            vecBuffers[6].assign(&(sg->Ng.x));
-            Ng_val->setTypedData(vecBuffers + 6, 1);
-        }
-
-        if (s_val)
-        {
-            fltBuffers[0] = sg->u;
-            s_val->setTypedData(fltBuffers + 0, 1);
-        }
-        if (t_val)
-        {
-            fltBuffers[1] = sg->v;
-            t_val->setTypedData(fltBuffers + 1, 1);
         }
     }
     

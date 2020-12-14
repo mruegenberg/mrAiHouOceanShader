@@ -14,25 +14,6 @@ This project derives from [mrAiVexShader](https://github.com/mruegenberg/mrAiVex
 5. Copy `ai_ocean_samplelayers.dll/.so/.dylib` to the `dso` directory in your Arnold installation (or wherever your Arnold looks for procedurals). It's easiest to put it somewhere in your `ARNOLD_PLUGIN_PATH` and add `[ARNOLD_PLUGIN_PATH]` to the *Procedural Path* in the System section of your Arnold settings.
 6. Start Houdini with Arnold and have some fun. (It's theoretically even possible to use this without Houdini, e.g in Maya or C4D, but you will probably use that to author the ocean spectra anyway.)
 
-### On getting the right compiler to work
-Lets say we're using Houdini 18.0.*, which uses GCC 6.3. 
-https://vfxplatform.com/#footnote-gcc6
-
-Vagrant
-sudo pacman -S vagrant
-# sudo pacman -S qemu libvirt virt-manager # theoretically, using libvirt/qemu/kvm might be faster, but things like shared folder are much more complicated
-# sudo systemctl enable libvirtd.service
-# `vagrant plugin install vagrant-libvirt`
-`vagrant box add centos/7` # choose virtualbox (option 3)
-vagrant plugin install vagrant-vbguest # makes shared folders work
-`vagrant up --provider=virtualbox
-
-Docker
-
------------
-
-Not sure how to get the binary out of Virtualbox...`
-
 # Usage
 
 1. Cache your ocean spectra to disk with the regular Houdini workflow for this. 

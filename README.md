@@ -4,7 +4,8 @@ This project derives from [mrAiVexShader](https://github.com/mruegenberg/mrAiVex
 
 ## Prerequisites
 - An installation of Houdini
-- The right compiler version matching your Houdini. You can find this in `Help > About Houdini > Show Details > Build platform`.
+- The right compiler version matching your Houdini. You can find this in `Help > About Houdini > Show Details > Build platform`.  
+  For Linux, this would be GCC 6.3 in the case of Houdini 18.5 (though Clang/LLVM also appears to work fine), for Windows, you'll need to install Visual Studio (probably with the Windows 10 C++ SDK), for OS X you'll need Xcode. For details, see the [Houdini HDK documentation](https://www.sidefx.com/docs/hdk/_h_d_k__intro__compiling.html#HDK_Intro_Compiling_Windows).
 
 ## Compilation/Installation
 1. Get the Arnold SDK for your system and Arnold version from [SolidAngle](https://www.solidangle.com/arnold/download/) and put it in `deps`.

@@ -131,7 +131,11 @@ shader_evaluate
         AiCritSecEnter(&(data->critSec)); // tmpnam is not threadsafe
 
         strcpy(data->codeFilename, "/tmp/oceanVexcodeXXXXXX");
+#ifdef _WIN32
+        mktemp_s(data->codeFilename, strlen(data->codeFilename));
+#else
         mkstemp(data->codeFilename);
+#endif
         // std::tmpnam(data->codeFilename); // TODO: add pragma to silence the unsafe warning?
         strncat(data->codeFilename, ".vfl", 150);
         fileName = data->codeFilename;

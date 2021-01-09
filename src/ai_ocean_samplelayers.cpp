@@ -132,7 +132,7 @@ shader_evaluate
 
         strcpy(data->codeFilename, "/tmp/oceanVexcodeXXXXXX");
 #ifdef _WIN32
-        mktemp_s(data->codeFilename, strlen(data->codeFilename));
+        _mktemp_s(data->codeFilename, strlen(data->codeFilename));
 #else
         mkstemp(data->codeFilename);
 #endif

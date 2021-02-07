@@ -1,6 +1,6 @@
 #! /bin/bash
 if [ -z "$HOUDINI_DIR" ]; then
-    export HOUDINI_DIR=/opt/hfs18.0.416
+    export HOUDINI_DIR=/opt/hfs18.5.351
 fi
 
 # if [ -z "$HFS" ]; then
@@ -15,7 +15,7 @@ fi
 # fi
 
 if [ -z "$ARNOLD_DIR" ]; then
-        export ARNOLD_DIR=deps/Arnold-6.0.3.0-linux
+        export ARNOLD_DIR=deps/Arnold-6.1.0.0-linux
 fi
 
 # extra flags: -g: debug

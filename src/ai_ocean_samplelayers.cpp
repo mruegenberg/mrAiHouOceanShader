@@ -26,7 +26,7 @@ AI_SHADER_NODE_EXPORT_METHODS(AiHOceanShdMethods);
 
 static const char *depthfalloffmodenames[] =
 {
-    "None", "Exponential", "Exponential by Frequency", NULL
+    "none", "exponential", "exponentialbyfreq", NULL
 };
 
 node_parameters
@@ -139,7 +139,7 @@ shader_evaluate
         // std::tmpnam(data->codeFilename); // TODO: add pragma to silence the unsafe warning?
         strncat(data->codeFilename, ".vfl", 150);
         fileName = data->codeFilename;
-        AiMsgWarning("CVEX tmp filename: %s", fileName);
+        AiMsgDebug("[AiOcean] CVEX tmp filename: %s", fileName);
 
         const char *vexCode =
             "#include <ocean.h>\n"
@@ -181,7 +181,7 @@ shader_evaluate
         
         if(! ctx->load(argc, argv)) {
             const char *err = ctx->getLastError();
-            AiMsgWarning("loading the CVEX context failed: %s", err);
+            AiMsgWarning("[AiOcean] loading the CVEX context failed: %s", err);
             return;
         }
 

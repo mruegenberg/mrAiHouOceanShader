@@ -7,30 +7,30 @@
 
       [attr filename]
             houdini.label STRING "Geometry File"
-	    desc STRING "Ocean Spectrum File"
+            desc STRING "Ocean Spectrum File"
             linkable BOOL FALSE
-	    houdini.type STRING "file:*.bgeo"
-	        
+            houdini.type STRING "file:*.bgeo"
+            
       [attr maskname]
             houdini.label STRING "Mask Geometry File"
-	    desc STRING "Ocean Spectrum Mask File"
+            desc STRING "Ocean Spectrum Mask File"
             linkable BOOL FALSE
-	    houdini.type STRING "file:*.bgeo"
+            houdini.type STRING "file:*.bgeo"
 
       [attr restname]
             houdini.label STRING "Rest Attribute"
-	    desc STRING "Attribute to use a rest position. Use for already partially displaced oceans."
+            desc STRING "Attribute to use a rest position. Use for already partially displaced oceans."
             linkable BOOL FALSE
-	        
+            
       [attr time]
             houdini.label STRING "Time"
             linkable BOOL TRUE
 
       [attr depthfalloff]
             houdini.label STRING "Depth Falloff"
-            linkable BOOL FALSE
             houdini.type STRING "menu:single"
             houdini.menu STRING "none;None;exponential;Exponential;exponentialbyfreq;Exponential by Frequency"
+            linkable BOOL FALSE
 
       [attr falloff]
             houdini.label STRING "Falloff Scale"
@@ -40,4 +40,4 @@
             houdini.label STRING "Downsample"
             linkable BOOL FALSE
 
-	
+        

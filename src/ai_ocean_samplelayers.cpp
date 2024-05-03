@@ -41,7 +41,7 @@ node_parameters
 }
 
 struct ShaderData {
-    AtCritSec critSec;
+    AtMutex critSec;
     
     char codeFilename[200]; // temporary file for compiled VEX code
     CVEX_Context* ctxs[AI_MAX_THREADS]; // at most one context per thread
@@ -69,7 +69,6 @@ node_initialize
         data->filenameBuffer[i] = CVEX_StringArray();
         data->masknameBuffer[i] = CVEX_StringArray();
     }
-    AiCritSecInit(&(data->critSec));
     AiNodeSetLocalData(node, data);
 }
 
@@ -92,7 +91,6 @@ node_finish
 
     if (data)
     {
-        AiCritSecClose(&(data->critSec));
         data->~ShaderData(); // call constructor without dealloc
         AiFree((void*) data);
         AiNodeSetLocalData(node, NULL);
@@ -128,7 +126,7 @@ shader_evaluate
         // temporary file for VEX code
         const char *fileName = "/tmp";
         
-        AiCritSecEnter(&(data->critSec)); // tmpnam is not threadsafe
+        data->critSec.lock(); // tmpnam is not threadsafe
 
         strcpy(data->codeFilename, "/tmp/oceanVexcodeXXXXXX");
 #ifdef _WIN32
@@ -157,7 +155,7 @@ shader_evaluate
         int argc = script.parse(argv, 1024); // converts so that VEX context can load it
 
 
-        AiCritSecLeave(&(data->critSec));
+        data->critSec.unlock();
         
         // default inputs translated from default Arnold names to default Hou names
         ctx->addInput("P",    CVEX_TYPE_VECTOR3, true); // P
